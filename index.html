@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فشرده‌ساز تصویر</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ========== THEME VARIABLES ========== */
+        :root {
+            /* Light Theme (Default) */
+            --bg-primary: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-header: rgba(255, 255, 255, 0.95);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-primary: #7c3aed;
+            --accent-secondary: #00d4ff;
+            --upload-bg: rgba(124, 58, 237, 0.08);
+            --upload-hover: rgba(0, 212, 255, 0.1);
+            --option-bg: rgba(124, 58, 237, 0.05);
+            --slider-bg: #cbd5e0;
+            --info-bg: rgba(124, 58, 237, 0.15);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.05);
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-header: rgba(0, 0, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-primary: #7c3aed;
+            --accent-secondary: #00d4ff;
+            --upload-bg: rgba(124, 58, 237, 0.1);
+            --upload-hover: rgba(0, 212, 255, 0.1);
+            --option-bg: rgba(255, 255, 255, 0.05);
+            --slider-bg: #444;
+            --info-bg: rgba(124, 58, 237, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.4s ease;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background: var(--bg-header);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            min-height: 90px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-icon {
+            font-size: 3rem;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .highlight-circle {
+            display: inline-block;
+            border: 2px solid #00d4ff;
+            border-radius: 25px;
+            padding: 4px 14px;
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Header Left - Social & Theme Toggle */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+        }
+
+        .social-link.telegram {
+            background: linear-gradient(135deg, #0088cc, #00aaff);
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+        }
+
+        .social-link.telegram:hover {
+            box-shadow: 0 6px 25px rgba(0, 136, 204, 0.6);
+        }
+
+        .social-link.whatsapp {
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        }
+
+        .social-link.whatsapp:hover {
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
+        }
+
+        .social-link svg {
+            width: 26px;
+            height: 26px;
+            fill: white;
+        }
+
+        .social-tooltip {
+            position: absolute;
+            bottom: -35px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .social-link:hover .social-tooltip {
+            opacity: 1;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .theme-toggle .icon {
+            font-size: 1.5rem;
+            transition: transform 0.4s ease;
+        }
+
+        .theme-toggle:hover .icon {
+            transform: rotate(20deg);
+        }
+
+        .theme-toggle .social-tooltip {
+            position: absolute;
+            bottom: -35px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .theme-toggle:hover .social-tooltip {
+            opacity: 1;
+        }
+
+        /* Divider */
+        .header-divider {
+            width: 1px;
+            height: 35px;
+            background: var(--border-color);
+            margin: 0 5px;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed var(--accent-primary);
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--upload-bg);
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent-secondary);
+            background: var(--upload-hover);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .upload-formats {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Options Panel */
+        .options-panel {
+            background: var(--option-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .options-panel.active {
+            display: block;
+        }
+
+        .option-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option-group label {
+            font-weight: bold;
+            color: var(--accent-secondary);
+        }
+
+        .format-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .format-btn {
+            padding: 12px 25px;
+            border: 2px solid var(--accent-primary);
+            background: transparent;
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .format-btn:hover, .format-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Quality Slider */
+        .quality-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quality-slider {
+            width: 200px;
+            height: 8px;
+            border-radius: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .quality-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .quality-value {
+            background: var(--accent-primary);
+            padding: 5px 12px;
+            border-radius: 8px;
+            min-width: 50px;
+            text-align: center;
+            color: white;
+        }
+
+        /* Lossless Toggle */
+        .lossless-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--slider-bg);
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .slider {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .preview-section.active {
+            display: grid;
+        }
+
+        .preview-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .preview-card h3 {
+            margin-bottom: 15px;
+            color: var(--accent-secondary);
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            object-fit: contain;
+        }
+
+        .file-info {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: var(--info-bg);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .size-reduction {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Download Button */
+        .download-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 18px 40px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .download-btn.active {
+            display: block;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 15px 20px;
+                text-align: center;
+            }
+            
+            .header-right {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header-titles {
+                align-items: center;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+            
+            .header-subtitle {
+                justify-content: center;
+                font-size: 0.85rem;
+            }
+            
+            .preview-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .option-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .format-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .format-btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+            
+            .header-divider {
+                display: none;
+            }
+        }
+
+        /* ========== FOOTER (Optional) ========== */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+        <!-- Right Side: Title -->
+        <div class="header-right">
+            <div class="logo-icon">🖼️</div>
+            <div class="header-titles">
+                <span class="header-title">فشرده‌ساز تصویر</span>
+                <span class="header-subtitle">
+                    فشرده‌سازی 
+                    <span class="highlight-circle">بدون افت کیفیت</span>
+                    یا با کنترل کیفیت
+                </span>
+            </div>
+        </div>
+
+        <!-- Left Side: Theme Toggle & Social Links -->
+        <div class="header-left">
+            
+            <!-- Theme Toggle Button -->
+            <button class="theme-toggle" id="themeToggle" title="تغییر تم">
+                <span class="icon" id="themeIcon">🌙</span>
+                <span class="social-tooltip" id="themeTooltip">حالت شب</span>
+            </button>
+
+            <div class="header-divider"></div>
+
+            <!-- ============================================
+                 🔵 TELEGRAM - لینک تلگرام
+                 برای غیرفعال کردن، خطوط زیر را کامنت کنید
+            ============================================= -->
+            <a href="https://t.me/YOUR_TELEGRAM_ID" target="_blank" class="social-link telegram" id="telegramLink">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+                <span class="social-tooltip">تلگرام</span>
+            </a>
+            <!-- پایان بخش تلگرام -->
+
+
+            <!-- ============================================
+                 🟢 WHATSAPP - لینک واتساپ  
+                 برای غیرفعال کردن، خطوط زیر را کامنت کنید
+                 شماره را با فرمت بین‌المللی وارد کنید (بدون + و 0)
+                 مثال ایران: 989123456789
+            ============================================= -->
+            <a href="https://wa.me/YOUR_WHATSAPP_NUMBER" target="_blank" class="social-link whatsapp" id="whatsappLink">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <span class="social-tooltip">واتساپ</span>
+            </a>
+            <!-- پایان بخش واتساپ -->
+
+        </div>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div class="container">
+
+        <!-- Upload Area -->
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">تصویر را اینجا رها کنید یا کلیک کنید</div>
+            <div class="upload-formats">PNG, JPEG, WebP, GIF, BMP, TIFF</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple>
+
+        <!-- Options Panel -->
+        <div class="options-panel" id="optionsPanel">
+            <div class="option-row">
+                <div class="option-group">
+                    <label>فرمت خروجی:</label>
+                    <div class="format-buttons">
+                        <button class="format-btn active" data-format="png">PNG</button>
+                        <button class="format-btn" data-format="webp">WebP</button>
+                        <button class="format-btn" data-format="jpeg">JPEG</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-row">
+                <div class="option-group">
+                    <div class="lossless-toggle">
+                        <label>فشرده‌سازی بدون افت کیفیت:</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="losslessToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="option-group quality-control" id="qualityControl" style="display: none;">
+                    <label>کیفیت:</label>
+                    <input type="range" class="quality-slider" id="qualitySlider" min="10" max="100" value="85">
+                    <span class="quality-value" id="qualityValue">85%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>در حال پردازش...</p>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" id="previewSection">
+            <div class="preview-card">
+                <h3>🔵 تصویر اصلی</h3>
+                <img id="originalPreview" class="preview-image" alt="Original">
+                <div class="file-info">
+                    <span class="info-item" id="originalFormat">-</span>
+                    <span class="info-item" id="originalSize">-</span>
+                    <span class="info-item" id="originalDimensions">-</span>
+                </div>
+            </div>
+
+            <div class="preview-card">
+                <h3>🟢 تصویر فشرده شده</h3>
+                <img id="compressedPreview" class="preview-image" alt="Compressed">
+                <div class="file-info">
+                    <span class="info-item" id="compressedFormat">-</span>
+                    <span class="info-item" id="compressedSize">-</span>
+                    <span class="info-item size-reduction" id="reduction">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Button -->
+        <button class="download-btn" id="downloadBtn">
+            ⬇️ دانلود تصویر فشرده شده
+        </button>
+    </div>
+
+    <!-- Optional Footer -->
+    <footer class="footer">
+        ساخته شده با ❤️ برای شما
+    </footer>
+
+    <script>
+        // ========== THEME TOGGLE ==========
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeTooltip = document.getElementById('themeTooltip');
+        const html = document.documentElement;
+
+        // Check saved theme or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeTooltip.textContent = 'حالت روز';
+            } else {
+                html.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeTooltip.textContent = 'حالت شب';
+            }
+        }
+
+        // ========== IMAGE COMPRESSOR ==========
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const optionsPanel = document.getElementById('optionsPanel');
+        const previewSection = document.getElementById('previewSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const formatBtns = document.querySelectorAll('.format-btn');
+        const losslessToggle = document.getElementById('losslessToggle');
+        const qualityControl = document.getElementById('qualityControl');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+
+        let currentFile = null;
+        let compressedBlob = null;
+        let selectedFormat = 'png';
+
+        // Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'));
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'));
+        });
+
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) {
+                processFile(e.target.files[0]);
+            }
+        }
+
+        // Format Selection
+        formatBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                formatBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFormat = btn.dataset.format;
+                
+                if (selectedFormat === 'png') {
+                    losslessToggle.checked = true;
+                    losslessToggle.disabled = true;
+                    qualityControl.style.display = 'none';
+                } else {
+                    losslessToggle.disabled = false;
+                    updateQualityVisibility();
+                }
+                
+                if (currentFile) {
+                    compressImage();
+                }
+            });
+        });
+
+        // Lossless Toggle
+        losslessToggle.addEventListener('change', () => {
+            updateQualityVisibility();
+            if (currentFile) {
+                compressImage();
+            }
+        });
+
+        function updateQualityVisibility() {
+            qualityControl.style.display = losslessToggle.checked ? 'none' : 'flex';
+        }
+
+        // Quality Slider
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value + '%';
+        });
+
+        qualitySlider.addEventListener('change', () => {
+            if (currentFile) {
+                compressImage();
+            }
+        });
+
+        // Process File
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('لطفاً یک فایل تصویری انتخاب کنید');
+                return;
+            }
+
+            currentFile = file;
+            optionsPanel.classList.add('active');
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('originalPreview').src = e.target.result;
+                
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('originalDimensions').textContent = 
+                        `${img.width} × ${img.height}`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            document.getElementById('originalFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+
+            compressImage();
+        }
+
+        // Compress Image
+        async function compressImage() {
+            loading.style.display = 'block';
+            previewSection.classList.remove('active');
+            downloadBtn.classList.remove('active');
+
+            const img = new Image();
+            img.src = URL.createObjectURL(currentFile);
+            
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                let mimeType, quality;
+                
+                if (selectedFormat === 'png') {
+                    mimeType = 'image/png';
+                    quality = undefined;
+                } else if (selectedFormat === 'webp') {
+                    mimeType = 'image/webp';
+                    quality = losslessToggle.checked ? 1.0 : qualitySlider.value / 100;
+                } else {
+                    mimeType = 'image/jpeg';
+                    quality = losslessToggle.checked ? 1.0 : qualitySlider.value / 100;
+                }
+
+                canvas.toBlob((blob) => {
+                    compressedBlob = blob;
+                    
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('compressedPreview').src = url;
+                    
+                    document.getElementById('compressedFormat').textContent = selectedFormat.toUpperCase();
+                    document.getElementById('compressedSize').textContent = formatFileSize(blob.size);
+                    
+                    const reduction = ((1 - blob.size / currentFile.size) * 100).toFixed(1);
+                    const reductionEl = document.getElementById('reduction');
+                    if (reduction > 0) {
+                        reductionEl.textContent = `↓ ${reduction}% کاهش حجم`;
+                        reductionEl.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+                    } else {
+                        reductionEl.textContent = `↑ ${Math.abs(reduction)}% افزایش حجم`;
+                        reductionEl.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+                    }
+
+                    loading.style.display = 'none';
+                    previewSection.classList.add('active');
+                    downloadBtn.classList.add('active');
+                    
+                }, mimeType, quality);
+            };
+        }
+
+        // Download
+        downloadBtn.addEventListener('click', () => {
+            if (!compressedBlob) return;
+            
+            const link = document.createElement('a');
+            const originalName = currentFile.name.replace(/\.[^/.]+$/, '');
+            link.download = `${originalName}_compressed.${selectedFormat}`;
+            link.href = URL.createObjectURL(compressedBlob);
+            link.click();
+        });
+
+        // Helper
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
