@@ -22,11 +22,27 @@
         })();
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preload" href="fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
 
     <style>
+        /* فونت‌ها داخل پروژه‌اند (پوشه‌ی fonts)؛ هیچ درخواستی به سرویس بیرونی ارسال نمی‌شود. هر دو با مجوز SIL OFL */
+        @font-face {
+            font-family: Vazirmatn;
+            src: url("fonts/Vazirmatn-Variable.woff2") format("woff2");
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "JetBrains Mono";
+            src: url("fonts/JetBrainsMono-Variable-latin.woff2") format("woff2");
+            font-weight: 100 800;
+            font-style: normal;
+            font-display: swap;
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+
         :root {
             color-scheme: dark;
             --bg: #0a0b0a;
@@ -1107,8 +1123,8 @@
             background: var(--accent-soft);
         }
 
-        .preset .mono {
-            font-size: 0.72rem;
+        .preset .num {
+            font-size: 0.78rem;
             opacity: 0.8;
         }
 
@@ -1467,8 +1483,8 @@
             <div class="hero-copy">
                 <span class="eyebrow rise" style="--d: 0.1s"><span class="eyebrow-dot" aria-hidden="true"></span>پردازش روی دستگاه شما · بدون آپلود</span>
                 <h1 id="pageTitle">
-                    <span class="line rise" style="--d: 0.2s">تصویر را سبک کن،</span>
-                    <span class="line soft rise" style="--d: 0.32s">کیفیتش را نگه دار.</span>
+                    <span class="line rise" style="--d: 0.2s">کیفیتش را نگه دار،</span>
+                    <span class="line soft rise" style="--d: 0.32s">تصویر را سبک کن!</span>
                 </h1>
                 <p class="lede rise" style="--d: 0.46s">PNG، WebP و JPEG را مستقیم در مرورگر فشرده کن. هیچ فایلی از دستگاهت خارج نمی‌شود و کیفیت خروجی را خودت تنظیم می‌کنی؛ نتیجه را هم همان لحظه کنار تصویر اصلی می‌بینی.</p>
                 <ul class="proof rise" style="--d: 0.58s" aria-label="ویژگی‌ها">
@@ -1569,15 +1585,15 @@
                     <div id="qualityControl" hidden>
                         <div class="quality-topline">
                             <label class="field-label" for="qualitySlider">کیفیت خروجی</label>
-                            <output class="quality-value" id="qualityValue" for="qualitySlider">۸۵٪</output>
+                            <output class="quality-value" id="qualityValue" for="qualitySlider">۸۴٪</output>
                         </div>
-                        <input class="quality-slider" type="range" id="qualitySlider" min="10" max="100" step="1" value="85" aria-describedby="qualityHint">
+                        <input class="quality-slider" type="range" id="qualitySlider" min="10" max="100" step="1" value="84" aria-describedby="qualityHint">
                         <div class="presets" role="group" aria-label="پیش‌تنظیم کیفیت">
-                            <button class="preset" type="button" data-quality="60" aria-pressed="false">کم‌حجم<span class="mono">۶۰</span></button>
-                            <button class="preset" type="button" data-quality="80" aria-pressed="false">متعادل<span class="mono">۸۰</span></button>
-                            <button class="preset" type="button" data-quality="92" aria-pressed="false">باکیفیت<span class="mono">۹۲</span></button>
+                            <button class="preset" type="button" data-quality="60" aria-pressed="false">کم‌حجم<span class="num">۶۰</span></button>
+                            <button class="preset" type="button" data-quality="80" aria-pressed="false">متعادل<span class="num">۸۰</span></button>
+                            <button class="preset" type="button" data-quality="92" aria-pressed="false">باکیفیت<span class="num">۹۲</span></button>
                         </div>
-                        <p class="quality-hint" id="qualityHint">عدد بالاتر معمولاً کیفیت بهتر و حجم فایل بیشتر می‌دهد.</p>
+                        <p class="quality-hint" id="qualityHint">عدد بالاتر معمولاً کیفیت بهتر و حجم فایل بیشتر می‌دهد. خروجی بعد از رها کردن لغزنده ساخته می‌شود.</p>
                     </div>
 
                     <p class="png-note" id="pngNote">PNG بدون افت کیفیت ذخیره می‌شود. برای حجم کمتر، WebP یا JPEG را انتخاب کن و کیفیت را تنظیم کن.</p>
@@ -2149,9 +2165,12 @@
                 });
             });
 
-            qualitySlider.addEventListener('input', () => {
+            // حین کشیدن فقط عدد نمایش داده می‌شود؛ تبدیل بعد از رها کردن لغزنده (رویداد change) انجام می‌شود.
+            // در صفحه‌کلید هر فشار کلید یک «رها کردن» حساب می‌شود، پس کمی تأخیر برای کلیدِ نگه‌داشته‌شده می‌گذاریم.
+            qualitySlider.addEventListener('input', updateQualityUI);
+            qualitySlider.addEventListener('change', () => {
                 updateQualityUI();
-                queueCompression(250);
+                queueCompression(120);
             });
 
             presetButtons.forEach((button) => {
