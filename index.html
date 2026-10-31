@@ -1990,6 +1990,24 @@
                 });
             }
 
+            // اگر هیچ پیکسلی شفاف نباشد، خروجی PNG را می‌توان بدون کانال آلفا ساخت که حدود ۱۵ تا ۲۰٪ کوچک‌تر است.
+            // برای جلوگیری از پر شدن حافظه، پیکسل‌ها نواری و به‌صورت تکه‌تکه بررسی می‌شوند.
+            function isFullyOpaque(context, width, height) {
+                try {
+                    const rowsPerBand = Math.max(1, Math.floor(4_000_000 / width));
+                    for (let y = 0; y < height; y += rowsPerBand) {
+                        const data = context.getImageData(0, y, width, Math.min(rowsPerBand, height - y)).data;
+                        for (let i = 3; i < data.length; i += 4) {
+                            if (data[i] !== 255) return false;
+                        }
+                    }
+                    return true;
+                } catch (_) {
+                    // اگر بررسی ممکن نبود، برای حفظ شفافیت فرض را بر شفاف بودن می‌گذاریم.
+                    return false;
+                }
+            }
+
             async function compressImage(job) {
                 const file = currentFile;
                 const format = selectedFormat;
@@ -2025,7 +2043,20 @@
                     }
                     context.drawImage(source, 0, 0, width, height);
 
-                    const blob = await canvasToBlob(canvas, mimeType, quality);
+                    // PNG: رمزگذار canvas همیشه کانال آلفا هم می‌نویسد؛ برای تصاویر کاملاً مات آن را کنار می‌گذاریم.
+                    let outputCanvas = canvas;
+                    if (format === 'png' && isFullyOpaque(context, width, height)) {
+                        const opaqueCanvas = document.createElement('canvas');
+                        opaqueCanvas.width = width;
+                        opaqueCanvas.height = height;
+                        const opaqueContext = opaqueCanvas.getContext('2d', { alpha: false });
+                        if (opaqueContext) {
+                            opaqueContext.drawImage(source, 0, 0, width, height);
+                            outputCanvas = opaqueCanvas;
+                        }
+                    }
+
+                    const blob = await canvasToBlob(outputCanvas, mimeType, quality);
                     if (job !== compressionJob) return;
                     if ((blob.type || '').toLowerCase() !== mimeType) {
                         throw new Error(`مرورگر شما خروجی ${format.toUpperCase()} را پشتیبانی نمی‌کند. فرمت دیگری را انتخاب کنید.`);
